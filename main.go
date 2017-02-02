@@ -53,18 +53,6 @@ func defJob(m *mtproto.MTProto) {
 	}
 }
 
-func testJob(m *mtproto.MTProto) {
-	log.Println("uib job: started")
-	// jobRandDelay()
-	log.Println("uib job: delay ended, sending command")
-	err := m.SendMessageToBot("userinfobot", "test")
-	if err != nil {
-		log.Printf("uib job: error - %s", err)
-	} else {
-		log.Println("uib job: command sent")
-	}
-}
-
 func jobRandDelay() {
 	delayMinutes := rand.Intn(maxDelayMinutes)
 	delaySeconds := rand.Intn(59)
@@ -77,7 +65,6 @@ func registerCronJobs(m *mtproto.MTProto) {
 	c := cron.New()
 
 	c.AddFunc("0 15 0,9-23 * * *", func() { goToForestJob(m) })
-	c.AddFunc("*/10 * * * * *", func() { testJob(m) })
 	c.AddFunc("0 25 1-8/2 * * *", func() { korovanJob(m) })
 	c.AddFunc("0 45 3-23/4 * * *", func() { defJob(m) })
 
@@ -91,8 +78,9 @@ func runBot(m *mtproto.MTProto) error {
 	registerCronJobs(m)
 
 	log.Printf("Jobs registered, infinite loop start")
-	for {
-	}
+	<-make(chan bool)
+
+	return nil
 }
 
 func usage() {
