@@ -43,11 +43,25 @@ func defJob(m *mtproto.MTProto) {
 	log.Println("def job: started")
 	jobRandDelay()
 	log.Println("def job: delay ended, sending command")
-	err := m.SendMessageToBot("chatwarsbot", "🇨🇾")
+	err := m.SendMessageToBot("chatwarsbot", "🛡 Защита")
+	time.Sleep(time.Duration(10) * time.Second)
+	err = m.SendMessageToBot("chatwarsbot", "🇨🇾")
 	if err != nil {
 		log.Printf("def job: error - %s", err)
 	} else {
 		log.Println("def job: command sent")
+	}
+}
+
+func testJob(m *mtproto.MTProto) {
+	log.Println("uib job: started")
+	// jobRandDelay()
+	log.Println("uib job: delay ended, sending command")
+	err := m.SendMessageToBot("userinfobot", "test")
+	if err != nil {
+		log.Printf("uib job: error - %s", err)
+	} else {
+		log.Println("uib job: command sent")
 	}
 }
 
@@ -62,7 +76,8 @@ func jobRandDelay() {
 func registerCronJobs(m *mtproto.MTProto) {
 	c := cron.New()
 
-	c.AddFunc("0 20 0,9-23 * * *", func() { goToForestJob(m) })
+	c.AddFunc("0 15 0,9-23 * * *", func() { goToForestJob(m) })
+	c.AddFunc("*/10 * * * * *", func() { testJob(m) })
 	c.AddFunc("0 25 1-8/2 * * *", func() { korovanJob(m) })
 	c.AddFunc("0 45 3-23/4 * * *", func() { defJob(m) })
 
