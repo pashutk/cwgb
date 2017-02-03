@@ -78,7 +78,9 @@ func runBot(m *mtproto.MTProto) error {
 	registerCronJobs(m)
 
 	log.Printf("Jobs registered, infinite loop start")
-	<-make(chan bool)
+	for {
+		time.Sleep(time.Second)
+	}
 
 	return nil
 }
