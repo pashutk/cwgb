@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/pashutk/mtproto"
@@ -53,6 +54,26 @@ func defJob(m *mtproto.MTProto) {
 	}
 }
 
+func korovanDefJob(m *mtproto.MTProto) error {
+	err, msg := m.GetLastMessageFromBot("chatwarsbot")
+	if err != nil {
+		return fmt.Errorf("GetLastMessageFromBot error: %#v", err)
+	}
+
+	hasGoCommand := strings.Contains(msg, "/go")
+	if hasGoCommand {
+		log.Println("GetLastMessageFromBot job: attacker detected")
+		err = m.SendMessageToBot("chatwarsbot", "/go")
+		if err != nil {
+			log.Printf("GetLastMessageFromBot job: error - %s", err)
+		} else {
+			log.Println("GetLastMessageFromBot job: command sent")
+		}
+	}
+
+	return nil
+}
+
 func jobRandDelay() {
 	delayMinutes := rand.Intn(maxDelayMinutes)
 	delaySeconds := rand.Intn(59)
@@ -67,6 +88,7 @@ func registerCronJobs(m *mtproto.MTProto) {
 	c.AddFunc("0 15 0,9-23 * * *", func() { goToForestJob(m) })
 	c.AddFunc("0 25 1-8/2 * * *", func() { korovanJob(m) })
 	c.AddFunc("0 45 3-23/4 * * *", func() { defJob(m) })
+	c.AddFunc("0 */2 * * * *", func() { korovanDefJob(m) })
 
 	c.Start()
 }
